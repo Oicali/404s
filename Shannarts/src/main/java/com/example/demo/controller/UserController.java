@@ -54,7 +54,7 @@ public class UserController {
 	if (existingUser.getRole() == 1) {
 	     return "redirect:/"; // normal user
 	} else if (existingUser.getRole() == 0) {
-	    // ADMIN ROLE (0) now redirects to the new dashboard JSP
+	    // ADMIN ROLE (0) now redirects to the new dashboard JSP test
 	    return "redirect:/dashboard"; 
 	}
 }
