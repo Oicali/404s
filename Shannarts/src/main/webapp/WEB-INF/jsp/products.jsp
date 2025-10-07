@@ -360,7 +360,7 @@
             <li><a href="dashboard" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
             <li><a href="products" class="nav-link active"><i class="fas fa-box-open"></i> Products</a></li>
             <li><a href="#" class="nav-link"><i class="fas fa-shopping-cart"></i> Orders</a></li>
-            <li><a href="#" class="nav-link"><i class="fas fa-users"></i> Customers</a></li>
+            <li><a href="#" class="nav-link"><i class="fas fa-users"></i> Transactions</a></li>
             <li><a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
         </ul>
 
