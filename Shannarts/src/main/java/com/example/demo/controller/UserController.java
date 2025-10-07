@@ -17,7 +17,7 @@ import java.util.HashMap;
 @Controller
 public class UserController {
 
-	private final UserService service; // Changed to final
+	private final UserService service; 
 
 	// ⭐ FIX: Explicit Constructor for Dependency Injection (Preferred Method) ⭐
 	@Autowired
@@ -61,7 +61,7 @@ public class UserController {
 
 	//Role-based redirection
 	if (existingUser.getRole() == 1) {
-	     return "redirect:/"; // normal user
+	     return "redirect:/shop"; // ⭐ UPDATED: normal user redirects to the shop ⭐
 	} else if (existingUser.getRole() == 0) {
 	    // ADMIN ROLE (0) now redirects to the new dashboard JSP
 	    return "redirect:/dashboard"; 
@@ -86,6 +86,31 @@ public class UserController {
 	return "index";
 
 	}
+    
+    // 🛍️ SHOP HANDLER: NEW METHOD FOR shop.jsp 🛍️
+	/**
+	 * USER SHOP HANDLER
+	 * Maps the request to /shop and ensures the user is logged in.
+	 */
+    @GetMapping("/shop")
+    public String showShop(HttpSession session,
+            Model model, 
+            RedirectAttributes redirectAttributes) {
+
+        User loggedUser = (User) session.getAttribute("loggedUser");
+
+		// Security check: User must be logged in to view the shop
+		if (loggedUser == null) {
+			redirectAttributes.addFlashAttribute("error",  "Please log in to view the shop.");
+			return "redirect:/login";
+			}
+			
+		// In a real application, you would fetch the product list here
+		// model.addAttribute("products", productService.getAllProducts());
+        
+        // Returns the view name 'shop', which Spring resolves to shop.jsp
+        return "shop"; 
+    }
 	
 	/**
 	 * ADMIN DASHBOARD HANDLER
@@ -167,6 +192,37 @@ public class UserController {
         // Returns the view name 'orders', which Spring resolves to orders.jsp
         return "orders"; 
     }
+    
+    // 💵 TRANSACTIONS HANDLER: NEW METHOD FOR transactions.jsp 💵
+    /**
+	 * ADMIN TRANSACTIONS HANDLER
+	 * Maps the request to /transactions and passes the list of transactions to the JSP.
+	 */
+    @GetMapping("/transactions") // This is the new URL mapping
+    public String showTransactions(HttpSession session,
+            Model model, 
+            RedirectAttributes redirectAttributes) {
+
+        User loggedUser = (User) session.getAttribute("loggedUser");
+
+		// Security check: Only Admins (role 0) should access transactions
+		if (loggedUser == null || loggedUser.getRole() != 0) {
+			redirectAttributes.addFlashAttribute("error",  "Unauthorized access! Please log in as Admin.");
+			return "redirect:/login";
+			}
+			
+        // --- Using the same mock data for now, as it fits the JSP structure ---
+        List<Map<String, Object>> mockTransactionList = createMockTransactions();
+        
+        // --- Pass Data to JSP ---
+        // The transactions.jsp uses JSTL to loop over this list.
+        // It uses the attribute name "transactionList"
+        model.addAttribute("transactionList", mockTransactionList);
+        
+        // Returns the view name 'transactions', which Spring resolves to transactions.jsp
+        return "transactions"; 
+    }
+
 
     /**
      * Helper function to create mock data for demonstration
@@ -176,16 +232,21 @@ public class UserController {
         // This simulates the aggregated data your service layer would provide
         List<Map<String, Object>> list = new ArrayList<>();
         
-        list.add(Map.of("txnId", "TXN1001", "userId", "U458A", "date", "Oct 08, 2025", "method", "GCash", "total", 3500.00, "status", "Paid",
+        // NOTE on Statuses: The transactions.jsp uses "Delivered", "Shipped", "Pending"
+        // The mock data used in /orders has "Paid", "Pending", "Shipped", "Failed". 
+        // I will adjust this mock data slightly to match the expected statuses from your DB schema image 
+        // ("Pending", "Shipped", "Delivered") for better JSP compatibility.
+        
+        list.add(Map.of("txnId", "TXN1001", "userId", "U458A", "date", "Oct 08, 2025", "method", "GCash", "total", 3500.00, "status", "Delivered",
                    "itemsJson", "[{\"name\": \"The Romantic Bouquet\", \"unitPrice\": 3500.00, \"quantity\": 1, \"subtotal\": 3500.00, \"product_name\": \"The Romantic Bouquet\"}]"));
                    
-        list.add(Map.of("txnId", "TXN1002", "userId", "U991B", "date", "Oct 07, 2025", "method", "COD", "total", 4700.00, "status", "Pending",
-                   "itemsJson", "[{\"name\": \"Sunshine Bouquet\", \"unitPrice\": 1899.00, \"quantity\": 2, \"subtotal\": 3798.00, \"product_name\": \"Sunshine Bouquet\"}, {\"name\": \"Delivery Fee\", \"unitPrice\": 802.00, \"quantity\": 1, \"subtotal\": 802.00, \"product_name\": \"Delivery Fee\"}]"));
+        list.add(Map.of("txnId", "TXN1002", "userId", "U991B", "date", "Oct 07, 2025", "method", "COD", "total", 4700.00, "status", "Shipped",
+                   "itemsJson", "[{\"name\": \"Sunshine Bouquet\", \"unitPrice\": 1899.00, \"quantity\": 2, \"subtotal\": 3798.00, \"product_name\": \"Sunshine Bouquet\"}, {\"name\": \"Gift Card\", \"unitPrice\": 902.00, \"quantity\": 1, \"subtotal\": 902.00, \"product_name\": \"Gift Card\"}]"));
                    
-        list.add(Map.of("txnId", "TXN1003", "userId", "U221D", "date", "Oct 06, 2025", "method", "Card", "total", 5400.00, "status", "Shipped",
+        list.add(Map.of("txnId", "TXN1003", "userId", "U221D", "date", "Oct 06, 2025", "method", "Card", "total", 5400.00, "status", "Pending",
                    "itemsJson", "[{\"name\": \"Butterfly Bouquet\", \"unitPrice\": 5400.00, \"quantity\": 1, \"subtotal\": 5400.00, \"product_name\": \"Butterfly Bouquet\"}]"));
 
-        list.add(Map.of("txnId", "TXN1004", "userId", "U600E", "date", "Oct 05, 2025", "method", "PayPal", "total", 1100.00, "status", "Failed",
+        list.add(Map.of("txnId", "TXN1004", "userId", "U600E", "date", "Oct 05, 2025", "method", "PayPal", "total", 1100.00, "status", "Delivered",
                    "itemsJson", "[{\"name\": \"Money Bouquet\", \"unitPrice\": 1100.00, \"quantity\": 1, \"subtotal\": 1100.00, \"product_name\": \"Money Bouquet\"}]"));
                    
         return list;

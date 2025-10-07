@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders Management - Shannarts</title>
+    <title>Transactions History - Shannarts</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
    
@@ -25,6 +25,7 @@
             --pending: #ffc107;
             --shipping: #007bff;
             --danger: #dc3545;
+            --delivered: #008080; /* Teal/Muted Blue for Delivered */
         }
 
         * {
@@ -194,36 +195,35 @@
         }
         
         /* --- Table Styling --- */
-        .orders-table {
+        .transactions-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 17px;
             text-align: left;
         }
         
-        .orders-table th, .orders-table td {
+        .transactions-table th, .transactions-table td {
             padding: 15px 12px;
             border-bottom: 1px solid #eee;
             vertical-align: middle;
         }
         
-        .orders-table th {
+        .transactions-table th {
             font-weight: 700;
             color: var(--secondary-text);
             background-color: var(--primary-light);
             text-transform: uppercase;
             font-size: 14px;
             letter-spacing: 0.5px;
-            cursor: pointer; /* Suggests sorting capability */
         }
         
-        .orders-table tr:hover {
+        .transactions-table tr:hover {
             background-color: #fcf4f7;
         }
         
         .view-details-btn {
             padding: 8px 15px;
-            background: var(--primary-dark);
+            background: var(--shipping); /* Blue for viewing history/details */
             color: white;
             border: none;
             border-radius: 6px;
@@ -234,10 +234,10 @@
         }
         
         .view-details-btn:hover {
-            background: #6d1029;
+            background: #0056b3;
         }
         
-        /* --- Status Badges --- */
+        /* --- Status Badges (Reused from Orders) --- */
         .status-badge {
             display: inline-block;
             padding: 6px 10px;
@@ -248,20 +248,16 @@
             letter-spacing: 0.5px;
         }
 
-        .status-pending {
+        .status-Pending { /* Matches DB enum 'Pending' */
             background-color: var(--pending);
             color: #333;
         }
-        .status-paid {
-            background-color: var(--success);
-            color: white;
-        }
-        .status-shipped {
+        .status-Shipped { /* Matches DB enum 'Shipped' */
             background-color: var(--shipping);
             color: white;
         }
-        .status-failed {
-            background-color: var(--danger);
+        .status-Delivered { /* Matches DB enum 'Delivered' */
+            background-color: var(--delivered);
             color: white;
         }
         
@@ -292,7 +288,7 @@
             padding: 30px;
             border-radius: 15px;
             width: 95%;
-            max-width: 800px; /* Wider modal for details */
+            max-width: 800px; 
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             position: relative;
             transform: translateY(-50px);
@@ -382,49 +378,6 @@
             color: var(--secondary-text);
         }
         
-        /* --- Status Update Form --- */
-        .status-update-section {
-            background-color: var(--primary-light);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .status-update-section label {
-            font-weight: 600;
-            color: var(--secondary-text);
-            font-size: 18px;
-            margin-right: 15px;
-        }
-
-        .status-update-section select {
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            margin-right: 15px;
-            flex-grow: 1;
-            max-width: 200px;
-        }
-
-        .modal-btn-save {
-            padding: 10px 20px;
-            background: var(--primary-dark);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .modal-btn-save:hover {
-            background: #6d1029;
-        }
-        
         @media (max-width: 768px) {
             .sidebar {
                 position: relative;
@@ -446,7 +399,7 @@
                 font-size: 36px;
             }
             
-            .orders-table th, .orders-table td {
+            .transactions-table th, .transactions-table td {
                 padding: 10px 8px;
                 font-size: 14px;
             }
@@ -458,18 +411,6 @@
             .detail-item {
                 margin-bottom: 10px;
             }
-            
-            .status-update-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .status-update-section label, .status-update-section select, .modal-btn-save {
-                margin-bottom: 10px;
-                margin-right: 0;
-                width: 100%;
-                max-width: none;
-            }
         }
         
     </style>
@@ -480,6 +421,7 @@
     <div class="sidebar">      
         <div class="logo-container">
             <div class="logo-wrapper">
+                <!-- Using a placeholder for your logo -->
                 <img src="<%= request.getContextPath() %>/images/1.png" alt="Shannarts Logo" />
             </div>
             <div class="brand-name">SHANNARTS</div>
@@ -489,8 +431,8 @@
         <ul class="nav-links">
             <li><a href="dashboard" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
             <li><a href="products" class="nav-link"><i class="fas fa-box-open"></i> Products</a></li>
-            <li><a href="orders" class="nav-link active"><i class="fas fa-shopping-cart"></i> Orders</a></li>
-            <li><a href="transactions" class="nav-link"><i class="fas fa-users"></i> Transactions</a></li>
+            <li><a href="orders" class="nav-link"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+            <li><a href="transactions" class="nav-link active"><i class="fas fa-users"></i> Transactions</a></li>
             <li><a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
         </ul>
 
@@ -504,102 +446,65 @@
         <div class="content-container">
             
             <div class="header-controls">
-                <h1>Customer Orders</h1>
+                <h1>Transaction History</h1>
             </div>
 
             <div class="table-responsive">
-                <table class="orders-table">
+                <table class="transactions-table">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Customer (User ID)</th>
-                            <th>Order Date</th>
-                            <th>Payment Method</th>
-                            <th>Total Amount</th>
+                            <th>ID</th>
+                            <th>User ID</th>
+                            <th>Date</th>
+                            <th>Method</th>
+                            <th>Amount</th>
                             <th>Status</th>
-                            <th>Action</th>
+                            <th>Details</th>
                         </tr>
                     </thead>
                     <tbody>
                     
-                        <tr class="order-row" 
-                            data-txn-id="TXN1001" 
-                            data-user-id="U458A" 
-                            data-date="2025-10-08 14:30:00" 
-                            data-method="GCash" 
-                            data-total="3500.00" 
-                            data-status="Paid"
-                            data-items='[
-                                {"name": "The Romantic Bouquet", "unitPrice": 3500.00, "quantity": 1, "subtotal": 3500.00},
-                                {"name": "Delivery Fee (Metro)", "unitPrice": 0.00, "quantity": 1, "subtotal": 0.00}
-                            ]'>
-                            <td>TXN1001</td>
-                            <td>U458A</td>
-                            <td><fmt:formatDate pattern="MMM dd, yyyy" value="<%= new java.util.Date() %>"/></td>
-                            <td>GCash</td>
-                            <td>₱3,500.00</td>
-                            <td><span class="status-badge status-paid">Paid</span></td>
+                        <!-- 
+                            NOTE: We assume your controller passes a list named 'transactionList'.
+                            Each item in the list must contain:
+                            - transactionId, userId, transactionDate, paymentMethod, transactionStatus
+                            - A property, e.g., 'itemsJson', containing the transaction_details data as a JSON string.
+                        -->
+                        <c:forEach var="txn" items="${transactionList}">
+                        <tr class="transaction-row" 
+                            data-txn-id="${txn.transactionId}" 
+                            data-user-id="${txn.userId}" 
+                            data-date="${txn.transactionDate}" 
+                            data-method="${txn.paymentMethod}" 
+                            data-total="${txn.totalAmount}" 
+                            data-status="${txn.transactionStatus}"
+                            data-items='${txn.itemsJson}'> 
+                            <td>${txn.transactionId}</td>
+                            <td>${txn.userId}</td>
+                            <td><fmt:formatDate pattern="MMM dd, yyyy" value="${txn.transactionDate}"/></td>
+                            <td>${txn.paymentMethod}</td>
+                            <td>
+                                <fmt:formatNumber value="${txn.totalAmount}" type="currency" currencySymbol="₱"/>
+                            </td>
+                            <td>
+                                <span class="status-badge status-${txn.transactionStatus}">${txn.transactionStatus}</span>
+                            </td>
                             <td><button class="view-details-btn"><i class="fas fa-search"></i> View Details</button></td>
                         </tr>
-
-                        <tr class="order-row" 
-                            data-txn-id="TXN1002" 
-                            data-user-id="U991B" 
-                            data-date="2025-10-07 09:15:00" 
-                            data-method="COD" 
-                            data-total="4700.00" 
-                            data-status="Pending"
-                            data-items='[
-                                {"name": "Sunshine Sunflower Bouquet", "unitPrice": 1899.00, "quantity": 2, "subtotal": 3798.00},
-                                {"name": "Gift Card Add-on", "unitPrice": 100.00, "quantity": 1, "subtotal": 100.00},
-                                {"name": "Provincial Delivery", "unitPrice": 802.00, "quantity": 1, "subtotal": 802.00}
-                            ]'>
-                            <td>TXN1002</td>
-                            <td>U991B</td>
-                            <td>Oct 07, 2025</td>
-                            <td>COD</td>
-                            <td>₱4,700.00</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td><button class="view-details-btn"><i class="fas fa-search"></i> View Details</button></td>
-                        </tr>
+                        </c:forEach>
                         
-                         <tr class="order-row" 
-                            data-txn-id="TXN1003" 
-                            data-user-id="U221D" 
-                            data-date="2025-10-06 17:00:00" 
-                            data-method="Card" 
-                            data-total="5400.00" 
-                            data-status="Shipped"
-                            data-items='[
-                                {"name": "Butterfly Bouquet", "unitPrice": 5400.00, "quantity": 1, "subtotal": 5400.00}
-                            ]'>
-                            <td>TXN1003</td>
-                            <td>U221D</td>
-                            <td>Oct 06, 2025</td>
-                            <td>Card</td>
-                            <td>₱5,400.00</td>
-                            <td><span class="status-badge status-shipped">Shipped</span></td>
-                            <td><button class="view-details-btn"><i class="fas fa-search"></i> View Details</button></td>
-                        </tr>
-                        
-                         <tr class="order-row" 
-                            data-txn-id="TXN1004" 
-                            data-user-id="U600E" 
-                            data-date="2025-10-05 11:45:00" 
-                            data-method="PayPal" 
-                            data-total="1100.00" 
-                            data-status="Failed"
-                            data-items='[
-                                {"name": "Pretty Big Money Bouquet", "unitPrice": 1100.00, "quantity": 1, "subtotal": 1100.00}
-                            ]'>
-                            <td>TXN1004</td>
-                            <td>U600E</td>
-                            <td>Oct 05, 2025</td>
-                            <td>PayPal</td>
-                            <td>₱1,100.00</td>
-                            <td><span class="status-badge status-failed">Failed</span></td>
-                            <td><button class="view-details-btn"><i class="fas fa-search"></i> View Details</button></td>
-                        </tr>
+                        <!-- MOCK DATA FOR TESTING (Remove once real data is available) -->
+                        <c:if test="${empty transactionList}">
+                            <tr class="transaction-row" data-txn-id="TXN1001" data-user-id="U458A" data-date="2025-10-08 14:30:00" data-method="Cash" data-total="3500.00" data-status="Delivered" data-items='[{"name": "The Romantic Bouquet", "product_id": 1, "unitPrice": 3500.00, "quantity": 1, "subtotal": 3500.00}, {"name": "Delivery Fee", "product_id": 99, "unitPrice": 0.00, "quantity": 1, "subtotal": 0.00}]'>
+                                <td>TXN1001</td><td>U458A</td><td>Oct 08, 2025</td><td>Cash</td><td>₱3,500.00</td><td><span class="status-badge status-Delivered">Delivered</span></td><td><button class="view-details-btn"><i class="fas fa-search"></i> View Details</button></td>
+                            </tr>
+                            <tr class="transaction-row" data-txn-id="TXN1002" data-user-id="U991B" data-date="2025-10-07 09:15:00" data-method="Online" data-total="4700.00" data-status="Shipped" data-items='[{"name": "Sunshine Sunflower Bouquet", "product_id": 2, "unitPrice": 1899.00, "quantity": 2, "subtotal": 3798.00}, {"name": "Gift Card", "product_id": 98, "unitPrice": 100.00, "quantity": 1, "subtotal": 100.00}]'>
+                                <td>TXN1002</td><td>U991B</td><td>Oct 07, 2025</td><td>Online</td><td>₱4,700.00</td><td><span class="status-badge status-Shipped">Shipped</span></td><td><button class="view-details-btn"><i class="fas fa-search"></i> View Details</button></td>
+                            </tr>
+                            <tr class="transaction-row" data-txn-id="TXN1003" data-user-id="U221D" data-date="2025-10-06 17:00:00" data-method="Card" data-total="5400.00" data-status="Pending" data-items='[{"name": "Butterfly Bouquet", "product_id": 3, "unitPrice": 5400.00, "quantity": 1, "subtotal": 5400.00}]'>
+                                <td>TXN1003</td><td>U221D</td><td>Oct 06, 2025</td><td>Card</td><td>₱5,400.00</td><td><span class="status-badge status-Pending">Pending</span></td><td><button class="view-details-btn"><i class="fas fa-search"></i> View Details</button></td>
+                            </tr>
+                        </c:if>
                         
                     </tbody>
                 </table>
@@ -610,59 +515,45 @@
     </div> 
     
     
-    <div id="orderDetailsModal" class="modal">
+    <!-- --- TRANSACTION DETAILS MODAL --- -->
+    <div id="transactionDetailsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modal-order-title">Order Details: TXNXXXX</h2>
+                <h2 id="modal-txn-title">Transaction Details: TXNXXXX</h2>
                 <button class="close-btn" data-modal-close>&times;</button>
             </div>
             
+            <!-- Transaction Summary -->
             <div class="detail-group">
                 <div class="detail-item"><strong>Customer ID:</strong> <span id="modal-user-id"></span></div>
-                <div class="detail-item"><strong>Order Date:</strong> <span id="modal-date"></span></div>
+                <div class="detail-item"><strong>Date:</strong> <span id="modal-date"></span></div>
                 <div class="detail-item"><strong>Payment Method:</strong> <span id="modal-method"></span></div>
             </div>
             
-            <h3 class="details-sub-header">Itemized Products</h3>
+            <h3 class="details-sub-header">Itemized Products (<i class="fas fa-receipt"></i> transaction_details)</h3>
             
+            <!-- Itemized Products from 'transaction_details' table -->
             <div class="table-responsive">
                 <table class="items-table">
                     <thead>
                         <tr>
                             <th>Product/Service</th>
+                            <th>ID</th>
                             <th>Unit Price</th>
                             <th>Quantity</th>
                             <th>Subtotal</th>
                         </tr>
                     </thead>
                     <tbody id="modal-items-tbody">
-                        </tbody>
+                        <!-- Items populated by JavaScript -->
+                    </tbody>
                 </table>
             </div>
             
             <div class="detail-group" style="border-top: 2px solid var(--primary-dark); margin-top: 20px; padding-top: 15px;">
                 <div class="detail-item" style="font-size: 22px;"><strong>GRAND TOTAL:</strong> <span id="modal-total" style="color: var(--danger); font-size: 24px;"></span></div>
+                <div class="detail-item"><strong>Status:</strong> <span id="modal-status"></span></div>
             </div>
-
-            <h3 class="details-sub-header">Update Status</h3>
-            
-            <form id="status-update-form" action="updateOrderStatusServlet" method="POST">
-                <input type="hidden" name="transaction_id" id="update-txn-id">
-                
-                <div class="status-update-section">
-                    <label for="update-status-select"><i class="fas fa-sync-alt"></i> Change Status:</label>
-                    
-                    <select id="update-status-select" name="payment_status">
-                        <option value="Pending">Pending</option>
-                        <option value="Paid">Paid</option>
-                        <option value="Shipped">Shipped</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Failed">Failed</option>
-                    </select>
-                    
-                    <button type="submit" class="modal-btn-save"><i class="fas fa-check"></i> Save Status</button>
-                </div>
-            </form>
             
         </div>
     </div>
@@ -670,22 +561,22 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('orderDetailsModal');
+            const modal = document.getElementById('transactionDetailsModal');
             const closeButtons = document.querySelectorAll('[data-modal-close]');
             const detailButtons = document.querySelectorAll('.view-details-btn');
             
             // Modal elements
-            const modalTitle = document.getElementById('modal-order-title');
+            const modalTitle = document.getElementById('modal-txn-title');
             const modalUserId = document.getElementById('modal-user-id');
             const modalDate = document.getElementById('modal-date');
             const modalMethod = document.getElementById('modal-method');
             const modalTotal = document.getElementById('modal-total');
+            const modalStatus = document.getElementById('modal-status');
             const modalItemsTbody = document.getElementById('modal-items-tbody');
-            const updateTxnId = document.getElementById('update-txn-id');
-            const updateStatusSelect = document.getElementById('update-status-select');
 
             // Function to handle the actual currency formatting
             function formatCurrency(amount) {
+                 // IMPORTANT: Use \${ to escape $ to prevent JSP parser from failing
                  return `₱\${parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
             }
 
@@ -716,7 +607,8 @@
 
             detailButtons.forEach(button => {
                 button.addEventListener('click', (event) => {
-                    const row = event.target.closest('.order-row');
+                    // Find the nearest table row (transaction-row)
+                    const row = event.target.closest('.transaction-row');
                     if (!row) return;
 
                     // 1. Retrieve data
@@ -728,34 +620,50 @@
                     const status = row.getAttribute('data-status');
                     const itemsJson = row.getAttribute('data-items');
                     
-                    // Parse the itemized details
-                    const items = JSON.parse(itemsJson); 
+                    // Parse the itemized details. Use [] as fallback in case data-items is null/invalid
+                    let items = [];
+                    try {
+                        items = JSON.parse(itemsJson || '[]'); 
+                    } catch (e) {
+                        console.error("Error parsing items JSON:", e);
+                        // Optional: Show an error message in the modal
+                    }
 
                     // 2. Populate Header and Summary
-                    modalTitle.textContent = `Order Details: ${txnId}`;
+                    modalTitle.textContent = `Transaction Details: ${txnId}`;
                     modalUserId.textContent = userId;
-                    modalDate.textContent = new Date(date).toLocaleDateString(); // Format date nicely
+                    // Try to parse the date as a Date object if possible, otherwise display raw string
+                    const dateObj = new Date(date);
+                    modalDate.textContent = isNaN(dateObj) ? date : dateObj.toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                    }); 
                     modalMethod.textContent = method;
-                    // FIX: Escape $ in template literal
                     modalTotal.textContent = formatCurrency(total);
                     
-                    // 3. Populate Items Table
-                    modalItemsTbody.innerHTML = ''; // Clear previous items
-                    items.forEach(item => {
-                        const tr = document.createElement('tr');
-                        // FIX: Escape $ in template literals here by adding a backslash: \${
-                        tr.innerHTML = `
-                            <td>\${item.name}</td>
-                            <td>\${formatCurrency(item.unitPrice)}</td>
-                            <td>\${item.quantity}</td>
-                            <td>\${formatCurrency(item.subtotal)}</td>
-                        `;
-                        modalItemsTbody.appendChild(tr);
-                    });
+                    // 3. Populate Status
+                    modalStatus.className = `status-badge status-${status}`;
+                    modalStatus.textContent = status;
                     
-                    // 4. Populate Status Update Form
-                    updateTxnId.value = txnId;
-                    updateStatusSelect.value = status; 
+                    // 4. Populate Items Table
+                    modalItemsTbody.innerHTML = ''; // Clear previous items
+                    if (items.length === 0) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td colspan="5" style="text-align: center; color: #888;">No item details available.</td>`;
+                        modalItemsTbody.appendChild(tr);
+                    } else {
+                        items.forEach(item => {
+                            const tr = document.createElement('tr');
+                            // FIX: Use \${ to escape $ in template literals
+                            tr.innerHTML = `
+                                <td>\${item.name || 'N/A'}</td>
+                                <td>\${item.product_id || 'N/A'}</td>
+                                <td>\${formatCurrency(item.unitPrice)}</td>
+                                <td>\${item.quantity}</td>
+                                <td>\${formatCurrency(item.subtotal)}</td>
+                            `;
+                            modalItemsTbody.appendChild(tr);
+                        });
+                    }
                     
                     // 5. Open Modal
                     openModal();
