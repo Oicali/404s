@@ -11,7 +11,8 @@
    
         @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
         
-       /*bataa*/
+       /*puppyy*/
+	   
         :root {
             --primary-dark: #8b1538; /* Deep Maroon/Red */
             --primary-light: #f5e4ed; /* Light Pink for hover/background */
