@@ -233,9 +233,6 @@ public class UserController {
         List<Map<String, Object>> list = new ArrayList<>();
         
         // NOTE on Statuses: The transactions.jsp uses "Delivered", "Shipped", "Pending"
-        // The mock data used in /orders has "Paid", "Pending", "Shipped", "Failed". 
-        // I will adjust this mock data slightly to match the expected statuses from your DB schema image 
-        // ("Pending", "Shipped", "Delivered") for better JSP compatibility.
         
         list.add(Map.of("txnId", "TXN1001", "userId", "U458A", "date", "Oct 08, 2025", "method", "GCash", "total", 3500.00, "status", "Delivered",
                    "itemsJson", "[{\"name\": \"The Romantic Bouquet\", \"unitPrice\": 3500.00, \"quantity\": 1, \"subtotal\": 3500.00, \"product_name\": \"The Romantic Bouquet\"}]"));
@@ -309,5 +306,117 @@ public class UserController {
 		redirectAttributes.addFlashAttribute("message", "Logged out successfully!");
 		return "redirect:/login";
 	}
-	
+
+    // ⚙️ ACCOUNT AND ADMIN SETTINGS HANDLERS (NEW) ⚙️
+    
+    /**
+     * Shows the Admin Account Settings page (/settings).
+     * Fetches all users for the management table if the user is an admin.
+     */
+    @GetMapping("/settings")
+    public String showSettings(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+        User loggedUser = (User) session.getAttribute("loggedUser");
+        
+        if (loggedUser == null) {
+            redirectAttributes.addFlashAttribute("error", "Please log in to view settings.");
+            return "redirect:/login"; 
+        }
+
+        // Security Check: Only Admins (role 0) should access this settings page
+        if (loggedUser.getRole() == 0) {
+            try {
+                // Fetch all users for the User Management table on settings.jsp
+                List<User> allUsers = service.getAllUsers();
+                model.addAttribute("users", allUsers);
+            } catch (Exception e) {
+                System.err.println("Error fetching all users for settings page: " + e.getMessage());
+                model.addAttribute("error", "Could not load user data for management table.");
+            }
+        } else {
+            // Redirect non-admin users if they somehow try to access /settings
+            redirectAttributes.addFlashAttribute("error", "Access Denied: You do not have permission for this area.");
+            return "redirect:/shop"; 
+        }
+
+        return "settings"; // Renders settings.jsp
+    }
+
+    /**
+     * Handles profile updates (name/email) or password changes based on 'action' param.
+     */
+    @PostMapping("/update-profile")
+    public String updateProfile(
+        @RequestParam String action, 
+        @RequestParam(required = false) String firstname, 
+        @RequestParam(required = false) String lastname,
+        @RequestParam(required = false) String email,
+        @RequestParam(required = false) String currentPassword,
+        @RequestParam(required = false) String newPassword,
+        @RequestParam(required = false) String confirmPassword,
+        HttpSession session, 
+        RedirectAttributes redirectAttributes) {
+            
+        User loggedUser = (User) session.getAttribute("loggedUser");
+        if (loggedUser == null) {
+            return "redirect:/login";
+        }
+        
+        try {
+            if ("profile".equals(action)) {
+                // ⭐ Placeholder: In your UserService, implement the update logic here.
+                // service.updateProfile(loggedUser.getId(), firstname, lastname, email);
+                
+                // Update session object immediately after (simulated) successful update
+                loggedUser.setFirstname(firstname);
+                loggedUser.setLastname(lastname);
+                loggedUser.setEmail(email);
+                session.setAttribute("loggedUser", loggedUser);
+                
+                redirectAttributes.addFlashAttribute("message", "Profile updated successfully!");
+                
+            } else if ("password".equals(action)) {
+                
+                if (newPassword == null || !newPassword.equals(confirmPassword)) {
+                    redirectAttributes.addFlashAttribute("error", "New password and confirmation do not match.");
+                } else {
+                    // ⭐ Placeholder: In your UserService, implement password change logic here.
+                    // if (service.changePassword(loggedUser.getId(), currentPassword, newPassword)) { ... }
+                    redirectAttributes.addFlashAttribute("message", "Password change request processed.");
+                }
+            } else {
+                 redirectAttributes.addFlashAttribute("error", "Invalid update action.");
+            }
+        } catch (Exception e) {
+            System.err.println("Update failed: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "An error occurred during update.");
+        }
+
+        // Always redirect back to the GET /settings method
+        return "redirect:/settings";
+    }
+    
+    /**
+     * Handles the Admin tool to promote a user to Admin role.
+     */
+    @PostMapping("/promote-user")
+    public String promoteUser(@RequestParam String targetEmail, HttpSession session, RedirectAttributes redirectAttributes) {
+        User loggedUser = (User) session.getAttribute("loggedUser");
+        
+        // Security check: Only Admin (role 0) can access this
+        if (loggedUser == null || loggedUser.getRole() != 0) {
+            redirectAttributes.addFlashAttribute("error", "Access denied. Administrator privileges required.");
+            return "redirect:/settings";
+        }
+
+        try {
+            // ⭐ Placeholder: In your UserService, implement the role update logic here.
+            // service.updateUserRole(targetEmail, 0); 
+            redirectAttributes.addFlashAttribute("message", "User " + targetEmail + " promotion request processed. Check service implementation.");
+        } catch (Exception e) {
+            System.err.println("Promotion failed: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Failed to promote user: " + e.getMessage());
+        }
+        
+        return "redirect:/settings";
+    }
 }

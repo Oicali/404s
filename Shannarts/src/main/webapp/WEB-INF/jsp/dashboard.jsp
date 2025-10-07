@@ -406,7 +406,7 @@
             <li><a href="products" class="nav-link"><i class="fas fa-box-open"></i> Products</a></li>
             <li><a href="orders" class="nav-link"><i class="fas fa-shopping-cart"></i> Orders</a></li>
             <li><a href="transactions" class="nav-link"><i class="fas fa-users"></i> Transactions</a></li>
-            <li><a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="settings" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
         </ul>
 
      
