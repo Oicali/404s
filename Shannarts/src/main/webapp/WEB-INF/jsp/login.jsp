@@ -32,7 +32,7 @@
             padding: 0;
         }
         
-        /* FIX: Hides the browser's default password reveal icon to prevent a double icon */
+        
         input[type="password"]::-ms-reveal {
             display: none;
         }
@@ -342,7 +342,7 @@
             color: #8b1538;
         }
         
-        /* FIX: Positions the error message absolutely to prevent moving other elements */
+        
         .error-message {
             color: #dc3545;
             font-size: 12px;

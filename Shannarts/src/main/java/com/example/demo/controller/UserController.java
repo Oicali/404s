@@ -9,12 +9,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList; 
+import java.util.HashMap; 
 
 @Controller
 public class UserController {
 
+	private final UserService service; // Changed to final
+
+	// ⭐ FIX: Explicit Constructor for Dependency Injection (Preferred Method) ⭐
 	@Autowired
-	private UserService service;
+	public UserController(UserService service) {
+		this.service = service;
+	}
 	
 	@ModelAttribute
 	public void addLoggedUserToModel(HttpSession session, Model model) {
@@ -105,7 +114,7 @@ public class UserController {
 			return "dashboard"; 
 	}
     
-    // 🚀 PRODUCTS HANDLER: This is what makes the link work 🚀
+    // 🚀 PRODUCTS HANDLER
 	/**
 	 * ADMIN PRODUCTS HANDLER
 	 * Maps the request from the dashboard link to the products.jsp view.
@@ -126,6 +135,61 @@ public class UserController {
 		// Returns the view name 'products', which Spring resolves to products.jsp
 		return "products"; 
 	}
+
+    // ⭐ ORDERS HANDLER: NEW METHOD FOR orders.jsp ⭐
+	/**
+	 * ADMIN ORDERS HANDLER
+	 * Fetches transaction data and maps the request to the orders.jsp view.
+	 */
+    @GetMapping("/orders") // This is the URL the user should go to: http://localhost:8080/orders
+    public String showOrders(HttpSession session,
+            Model model, 
+            RedirectAttributes redirectAttributes) {
+
+        User loggedUser = (User) session.getAttribute("loggedUser");
+
+		// Security check: Only Admins (role 0) should access orders
+		if (loggedUser == null || loggedUser.getRole() != 0) {
+			redirectAttributes.addFlashAttribute("error",  "Unauthorized access! Please log in as Admin.");
+			return "redirect:/login";
+			}
+			
+        // --- 1. Fetch REAL Data (TBD) ---
+        // When you implement your service layer, you'll replace the line below.
+
+        // --- 2. Add Dummy Data for Testing (Used until Service is ready) ---
+        List<Map<String, Object>> mockTransactionList = createMockTransactions();
+        
+        // --- 3. Pass Data to JSP ---
+        // The orders.jsp uses JSTL to loop over this list.
+        model.addAttribute("transactionList", mockTransactionList);
+        
+        // Returns the view name 'orders', which Spring resolves to orders.jsp
+        return "orders"; 
+    }
+
+    /**
+     * Helper function to create mock data for demonstration
+     * NOTE: In a real app, this data would come from the TransactionService.
+     */
+    private List<Map<String, Object>> createMockTransactions() {
+        // This simulates the aggregated data your service layer would provide
+        List<Map<String, Object>> list = new ArrayList<>();
+        
+        list.add(Map.of("txnId", "TXN1001", "userId", "U458A", "date", "Oct 08, 2025", "method", "GCash", "total", 3500.00, "status", "Paid",
+                   "itemsJson", "[{\"name\": \"The Romantic Bouquet\", \"unitPrice\": 3500.00, \"quantity\": 1, \"subtotal\": 3500.00, \"product_name\": \"The Romantic Bouquet\"}]"));
+                   
+        list.add(Map.of("txnId", "TXN1002", "userId", "U991B", "date", "Oct 07, 2025", "method", "COD", "total", 4700.00, "status", "Pending",
+                   "itemsJson", "[{\"name\": \"Sunshine Bouquet\", \"unitPrice\": 1899.00, \"quantity\": 2, \"subtotal\": 3798.00, \"product_name\": \"Sunshine Bouquet\"}, {\"name\": \"Delivery Fee\", \"unitPrice\": 802.00, \"quantity\": 1, \"subtotal\": 802.00, \"product_name\": \"Delivery Fee\"}]"));
+                   
+        list.add(Map.of("txnId", "TXN1003", "userId", "U221D", "date", "Oct 06, 2025", "method", "Card", "total", 5400.00, "status", "Shipped",
+                   "itemsJson", "[{\"name\": \"Butterfly Bouquet\", \"unitPrice\": 5400.00, \"quantity\": 1, \"subtotal\": 5400.00, \"product_name\": \"Butterfly Bouquet\"}]"));
+
+        list.add(Map.of("txnId", "TXN1004", "userId", "U600E", "date", "Oct 05, 2025", "method", "PayPal", "total", 1100.00, "status", "Failed",
+                   "itemsJson", "[{\"name\": \"Money Bouquet\", \"unitPrice\": 1100.00, \"quantity\": 1, \"subtotal\": 1100.00, \"product_name\": \"Money Bouquet\"}]"));
+                   
+        return list;
+    }
 	
 	/**
 	 * Handler for the GET /register page.

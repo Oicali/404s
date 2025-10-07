@@ -489,11 +489,6 @@
         }
 		
 
-		  /* ================================================= */
-		  /* 🔥 FIX FOR DOUBLE PASSWORD ICON START */
-		  /* ================================================= */
-
-		  /* Hide the native password reveal button for Microsoft Edge/IE */
 		  input[type="password"]::-ms-reveal,
 		  input[type="password"]::-ms-clear {
 		      display: none;
@@ -501,35 +496,31 @@
 		      height: 0;
 		  }
 
-		  /* Hide the native password reveal button for Firefox */
+		  
 		  input[type="password"] {
-		      /* This is generally used for custom styling control in Firefox */
+		    
 		      -moz-appearance: textfield; 
 		  }
 		  
-		  /* Hide the native password reveal button for Chrome/Safari/Brave */
-		  /* The input-icon position often overlaps the native button, but this removes it */
+		
 		  input[type="password"]::-webkit-inner-spin-button,
 		  input[type="password"]::-webkit-outer-spin-button {
 		      -webkit-appearance: none;
 		      margin: 0;
 		  }
 		  
-		  /* Set appearance to none to remove any default browser styling that might interfere */
+	
 		  input[type="password"] {
 		      -webkit-appearance: none;
 		      -moz-appearance: none;
 		      appearance: none;
 		  }
 		  
-		  /* You may need this if the above is not enough, to override specific icon positioning */
+		 
 		  .form-group input[type="password"] {
-		      padding-right: 50px !important; /* Ensure space for *your* icon, not the native one */
+		      padding-right: 50px !important; 
 		  }
 
-		  /* ================================================= */
-		  /* 🔥 FIX FOR DOUBLE PASSWORD ICON END */
-		  /* ================================================= */
         
         @keyframes slideDown {
             from {
@@ -731,7 +722,7 @@
                     <div class="error-message" id="phoneError">Phone number must be 11 digits starting with 09</div>
                 </div>
  
-				<!-- ===== HTML ===== -->
+		
 				<div class="form-group">
 				  <input type="password" name="password" id="password" class="form-input" placeholder="Password (min. 8 characters)" required>
 				  <!-- initial icon set to fa-eye-slash because input type is "password" (hidden) -->
@@ -775,8 +766,7 @@
     </div>
 
 	<script>
-	     // ================== START: UPDATED CODE FOR EMAIL ERROR ==================
-	     // This block handles the "Email already in use" error from the server.
+	    
 	     <c:if test="${not empty error}">
 	         document.addEventListener('DOMContentLoaded', function() {
 	             // IMPORTANT: Check if the error message is about the email.
@@ -814,12 +804,7 @@
 	             }
 	         });
 	     </c:if>
-        // =================== END: UPDATED CODE FOR EMAIL ERROR ===================
-
-
-        // --- ALL YOUR ORIGINAL JAVASCRIPT REMAINS THE SAME BELOW ---
-
-        // Password toggle functionality
+      
         const togglePassword = document.getElementById('togglePassword');
         const password = document.getElementById('password');
         const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
@@ -846,8 +831,7 @@
                 this.classList.toggle('fa-eye-slash');
             });
         }
-        
-        // Password strength checker
+
         password.addEventListener('input', function() {
             const value = this.value;
             const strengthIndicator = document.getElementById('passwordStrength');
@@ -882,7 +866,7 @@
             }
         });
         
-        // Form validation
+
         const form = document.getElementById('registerForm');
         const email = document.getElementById('email');
         const phone = document.getElementById('phone');
